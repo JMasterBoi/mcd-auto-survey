@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function App() {
   const [inputCode, setInputCode] = useState('')
@@ -117,6 +117,17 @@ function App() {
       default: return 'Unknown'
     }
   }
+
+  useEffect(() => {
+    fetch('/api/test')
+      .then(res => res.json())
+      .then(data => {
+        alert(data)
+      })
+      .catch(err => {
+        alert(err)
+      });
+  }, []);
 
   return (
     <div className="app">
