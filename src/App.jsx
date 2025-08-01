@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import axios from 'axios'
 
 function App() {
   const [inputCode, setInputCode] = useState('')
   const [queue, setQueue] = useState([])
+  const [finishedTasks, setFinishedTasks] = useState([])
   const [inputError, setInputError] = useState('')
+  const isProcessingRef = useRef(false);
 
   // Validate McDonald's code format: #####-#####-#####-#####-#####-#
   const validateCode = (code) => {
@@ -45,7 +48,7 @@ function App() {
 
     // Add to queue
     const newItem = {
-      id: crypto.randomUUID,
+      id: crypto.randomUUID(),
       code: inputCode,
       status: 'pending', // pending, processing, completed, error
       progress: 0
@@ -56,9 +59,108 @@ function App() {
     setInputError('')
 
     // Simulate processing
-    simulateProgress(newItem.id)
+    // simulateProgress(newItem.id)
   }
 
+
+  //!
+  // Simulate long-running task
+  const runTask = async (taskId) => {
+    for (let i = 1; i <= 10; i++) {
+      await new Promise(res => setTimeout(res, 400)); // simulate work
+      setQueue(prev =>
+        prev.map(t =>
+          t.id === taskId ? { ...t, progress: i * 10 } : t
+        )
+      );
+    }
+  };
+
+
+  // Process the queue (runs one at a time)
+  const processQueue = async () => {
+    console.log("isProcessingRef.current", isProcessingRef.current)
+
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+    
+    while (true) {
+      const task = queue.find(t => t.status === 'pending');
+      console.log("task", task)
+      if (!task) {console.log("break");break};
+      
+      // Mark as processing
+      setQueue(prev =>
+        prev.map(t =>
+          t.id === task.id ? { ...t, status: 'processing' } : t
+        )
+      );
+      console.log("run task")
+      await runTask(task.id);
+      console.log("end run task")
+      
+      // Mark as completed
+      setQueue(prev =>
+        prev.map(t =>
+          t.id === task.id ? { ...t, status: 'completed', progress: 100 } : t
+        )
+      );
+    }
+    
+    isProcessingRef.current = false;
+  };
+
+  // Watch for new tasks
+  useEffect(() => {
+    if (queue.some(t => t.status === 'pending')) {
+      console.log("found a pending task in queue")
+      checkQueue();
+    }
+  }, [queue]);
+
+  // check if there is something pending in queue
+  async function checkQueue() {
+    console.log("isProcessingRef.current", isProcessingRef.current)
+    if (isProcessingRef.current) {console.log("im busy rn bro"); return}
+    
+    const pendingTasks = queue.filter(t => t.status === 'pending')
+    console.log("pendingTasks", pendingTasks)
+    if (pendingTasks.length != 0) {
+      isProcessingRef.current = true;
+      console.log("confirmed there is a pending task")
+
+      await startTask(pendingTasks[0].id);
+  
+      isProcessingRef.current = false;
+
+      checkQueue()
+    } else {
+      console.log("there were 0 pending tasks")
+    }
+  }
+
+  async function startTask(currentTaskId) {
+    // set the task to processing
+    setQueue(prev =>
+      prev.map(t =>
+        t.id === currentTaskId ? { ...t, status: 'processing' } : t
+      )
+    );
+
+    console.log("run task")
+    const result = await runTask(currentTaskId);
+    console.log("end run task")
+
+    console.log("result", result)
+  
+    let finishedTask = queue.filter((task) => task.id === currentTaskId)[0];
+    finishedTask.status = "completed";
+    finishedTask.progress = 100;
+    setFinishedTasks(prev => [...prev, finishedTask])
+    setQueue(prev => prev.filter((task) => task.id != currentTaskId))
+  }
+  //!
+  
   const simulateProgress = (id) => {
     setQueue(prev => prev.map(item => 
       item.id === id ? { ...item, status: 'processing', progress: 10 } : item
@@ -119,13 +221,11 @@ function App() {
   }
 
   useEffect(() => {
-    fetch('/api/test')
-      .then(res => res.json())
-      .then(data => {
-        alert(data)
+    axios.get('http://localhost:3000/api/hello').then((data) => {
+        console.log(data)
       })
       .catch(err => {
-        alert(err)
+        console.log(err)
       });
   }, []);
 
@@ -198,6 +298,40 @@ function App() {
               </div>
             ))
           )}
+
+          {finishedTasks.length === 0 || (
+            <>
+              <br />
+              <hr />
+              <br />
+              <div className="queue-header">
+                <h2>Finished Surveys ({finishedTasks.length})</h2>
+              </div>
+            </>
+            )}
+
+          {finishedTasks.map((item) => (
+            <div key={item.id} className={`queue-item ${item.status}`}>
+              <div className="item-header">
+                <span className="code">{item.code}</span>
+              </div>
+              
+              <div className="progress-section">
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill"
+                    style={{
+                      width: `${item.progress}%`,
+                      backgroundColor: getProgressColor(item.status, item.progress)
+                    }}
+                  ></div>
+                </div>
+                <span className="status-text">
+                  {getStatusText(item.status, item.progress)}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
         <footer className="footer">

@@ -38,3 +38,6 @@ Thumbs.db
 *.sln
 *.sw?
 .vercel
+
+# === Temporary api for testing ===
+tmp-api/
