@@ -148,7 +148,9 @@ function App() {
     );
 
     console.log("run task")
-    const result = await runTask(currentTaskId);
+    // const result = await runTask(currentTaskId);
+    // const result = await axios.get("/api/fill-survey")
+    const result = await axios.get("http://localhost:3000/api/fill-survey")
     console.log("end run task")
 
     console.log("result", result)
@@ -220,14 +222,14 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    axios.get('http://localhost:3000/api/hello').then((data) => {
-        console.log(data)
-      })
-      .catch(err => {
-        console.log(err)
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios.get('http://localhost:3000/api/hello').then((data) => {
+  //       console.log(data)
+  //     })
+  //     .catch(err => {
+  //       console.log(err)
+  //     });
+  // }, []);
 
   return (
     <div className="app">
