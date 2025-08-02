@@ -1,6 +1,6 @@
-// import puppeteer from "puppeteer";
-import chromium from '@sparticuz/chromium';
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
+// import chromium from '@sparticuz/chromium';
+// import puppeteer from "puppeteer-core";
 
 
 // const code = "02378-13230-72825-18446-00126-4";
@@ -164,13 +164,13 @@ export async function fillSurvey(code) {
         ]
     
 
-        const browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-        });
-        // const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
+        // const browser = await puppeteer.launch({
+        //     args: chromium.args,
+        //     defaultViewport: chromium.defaultViewport,
+        //     executablePath: await chromium.executablePath(),
+        //     headless: chromium.headless,
+        // });
+        const browser = await puppeteer.launch({ args: ['--incognito']});
 
         // Create a new incognito browser context
         const page = await browser.newPage();
@@ -210,7 +210,8 @@ export async function fillSurvey(code) {
     
             //! if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
             //! await new Promise(resolve => setTimeout(resolve, 500));
-            
+            if (!currentQuestion) return null
+
             console.log("currentQuestion:", currentQuestion)
             switch (currentQuestion?.type) {
                 case "radio":
