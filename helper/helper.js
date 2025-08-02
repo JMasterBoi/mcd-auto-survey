@@ -1,6 +1,6 @@
-import puppeteer from "puppeteer";
-// import chromium from '@sparticuz/chromium';
-// import puppeteer from "puppeteer-core";
+// import puppeteer from "puppeteer";
+import chromium from '@sparticuz/chromium';
+import puppeteer from "puppeteer-core";
 
 
 // const code = "02378-13230-72825-18446-00126-4";

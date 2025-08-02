@@ -1,16 +1,23 @@
 import {fillSurvey} from "../helper/helper.js"
 
 export default async function handler(req, res) {
+    console.log("Starting survey fill...");
+    
     req.setTimeout(60000);
     res.setTimeout(60000);
 
+    const { code } = req.body;
+    console.log(code)
+
+
     try {
-        await fillSurvey("02378-13230-72825-18446-00126-4");
-        console.log("Survey completed successfully");
+        const valCode = await fillSurvey(code);
+
+
+        console.log("Survey completed successfully, valCode: '", valCode + "'");
         
-        res.status(200).json({ 
-            success: true, 
-            message: "Survey completed successfully" 
+        res.status(200).json({
+            valCode: valCode
         });
     } catch (error) {
         console.error("Survey failed:", error);
