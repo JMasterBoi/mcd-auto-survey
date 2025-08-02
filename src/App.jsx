@@ -150,8 +150,8 @@ function App() {
     console.log("run task")
     const code = queue.filter(survey => survey.id === currentTaskId)[0]?.code
     
-    const result = await axios.post("http://localhost:3000/api/fill-survey", {code: code})
-    // const result = await axios.post("/api/fill-survey", {code: code})
+    // const result = await axios.post("http://localhost:3000/api/fill-survey", {code: code})
+    const result = await axios.post("/api/fill-survey", {code: code})
 
     console.log("end run task")
 
