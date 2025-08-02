@@ -164,13 +164,13 @@ export async function fillSurvey(code) {
         ]
     
 
-        // const browser = await puppeteer.launch({
-        //     args: chromium.args,
-        //     defaultViewport: chromium.defaultViewport,
-        //     executablePath: await chromium.executablePath(),
-        //     headless: chromium.headless,
-        // });
-        const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
+        const browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+        });
+        // const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
 
         // Create a new incognito browser context
         const page = await browser.newPage();
