@@ -206,6 +206,7 @@ body {
 
 .queue-item.completed {
   border-color: var(--success-color);
+  box-shadow: none;
 }
 
 .queue-item.error {
@@ -287,6 +288,10 @@ body {
 .footer p {
   color: var(--text-muted);
   font-size: var(--font-size-sm);
+}
+
+hr {
+  border: 1px solid var(--text-muted);
 }
 
 /* Responsive design */

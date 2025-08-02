@@ -240,6 +240,7 @@ function App() {
         <form onSubmit={handleSubmit} className="input-form">
           <div className="input-group">
             <input
+              autoFocus
               type="text"
               value={inputCode}
               onChange={handleInputChange}

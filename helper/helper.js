@@ -1,6 +1,5 @@
-// const puppeteer = require("puppeteer");
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
+import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer-core";
 
 // const code = "02378-13230-72825-18446-00126-4";
 
@@ -154,11 +153,17 @@ export async function fillSurvey(code) {
                 type: "select",
                 selection: "4"
             },
+            //? last one!
+            {
+                question: "Thank you for completing this survey.", 
+                type: "success",
+            },
         ]
     
-        const browser = await puppeteer.launch({ args: ['--incognito'], defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless});
+    //     const browser = await puppeteer.launch({ args: ['--incognito'], defaultViewport: chromium.defaultViewport,
+    // executablePath: await chromium.executablePath(),
+    // headless: chromium.headless});
+        const browser = await puppeteer.launch({ args: ['--incognito']});
         // Create a new incognito browser context
         const page = await browser.newPage();
     
@@ -196,7 +201,7 @@ export async function fillSurvey(code) {
             
     
             if (!currentQuestion) {await new Promise(resolve => setTimeout(resolve, 30000)); console.log("current question is null, check console")}
-            await new Promise(resolve => setTimeout(resolve, 500));
+            //! await new Promise(resolve => setTimeout(resolve, 500));
             
             console.log("currentQuestion:", currentQuestion)
             switch (currentQuestion.type) {
@@ -260,13 +265,17 @@ export async function fillSurvey(code) {
                     console.log("select")
                     await page.select('select', currentQuestion.selection);
                     break;
-                default:
+                case "success":
+                    console.log("success!")
                     exit = true;
+                    break;
+                default:
                     console.log("no good")
+                    exit = true;
                     break;
             }
             
-            await new Promise(resolve => setTimeout(resolve, 500));
+            //! await new Promise(resolve => setTimeout(resolve, 500));
     
             console.log("\n\n")
 
@@ -303,7 +312,6 @@ export async function fillSurvey(code) {
             if (exit) break;
         }
         
-        await new Promise(resolve => setTimeout(resolve, 10000));
         await browser.close();
     })();
 }

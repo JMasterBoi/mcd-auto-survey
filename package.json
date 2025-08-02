@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sparticuz/chromium-min": "^138.0.2",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "puppeteer": "^24.15.0",
