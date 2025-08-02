@@ -150,15 +150,19 @@ function App() {
     console.log("run task")
     // const result = await runTask(currentTaskId);
     // const result = await axios.get("/api/fill-survey")
-    const result = await axios.get("http://localhost:3000/api/fill-survey")
+    const code = queue.filter(survey => survey.id === currentTaskId)[0]?.code
+    const result = await axios.post("http://localhost:3000/api/fill-survey", {code: code})
     console.log("end run task")
 
     console.log("result", result)
+    console.log("valCode", result.valCode)
   
-    let finishedTask = queue.filter((task) => task.id === currentTaskId)[0];
-    finishedTask.status = "completed";
-    finishedTask.progress = 100;
-    setFinishedTasks(prev => [...prev, finishedTask])
+    let finishedSurvey = queue.filter((task) => task.id === currentTaskId)[0];
+    finishedSurvey.status = "completed";
+    finishedSurvey.progress = 100;
+    finishedSurvey.valCode = result.valCode;
+
+    setFinishedTasks(prev => [...prev, finishedSurvey])
     setQueue(prev => prev.filter((task) => task.id != currentTaskId))
   }
   //!
@@ -317,6 +321,7 @@ function App() {
             <div key={item.id} className={`queue-item ${item.status}`}>
               <div className="item-header">
                 <span className="code">{item.code}</span>
+                <span className="code">Validation Code: {item.valCode}</span>
               </div>
               
               <div className="progress-section">

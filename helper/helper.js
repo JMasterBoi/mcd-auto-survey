@@ -7,7 +7,8 @@ import puppeteer from "puppeteer";
 
 export async function fillSurvey(code) {
     const splitCode = code.split("-");
-    await (async () => {
+    const valCode = await (async () => {
+        let ret;
         const survey = [
             {
                 question: "How did you place your order?",
@@ -169,7 +170,7 @@ export async function fillSurvey(code) {
         //     executablePath: await chromium.executablePath(),
         //     headless: chromium.headless,
         // });
-        const browser = await puppeteer.launch({ args: ['--incognito']});
+        const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
 
         // Create a new incognito browser context
         const page = await browser.newPage();
@@ -207,11 +208,11 @@ export async function fillSurvey(code) {
             }
             
     
-            if (!currentQuestion) {await new Promise(resolve => setTimeout(resolve, 30000)); console.log("current question is null, check console")}
+            if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
             //! await new Promise(resolve => setTimeout(resolve, 500));
             
             console.log("currentQuestion:", currentQuestion)
-            switch (currentQuestion.type) {
+            switch (currentQuestion?.type) {
                 case "radio":
                     await page.waitForSelector('input[type="radio"]', { visible: true });
                     console.log("currentQuestion.selection", currentQuestion.selection)
@@ -274,6 +275,8 @@ export async function fillSurvey(code) {
                     break;
                 case "success":
                     console.log("success!")
+                    ret = await page.$eval('.ValCode', el => el.innerText.split(" ")[2]);
+                    console.log("ret: ", ret)
                     exit = true;
                     break;
                 default:
@@ -320,5 +323,9 @@ export async function fillSurvey(code) {
         }
         
         await browser.close();
+        return ret;
     })();
+
+    console.log("valCode:", valCode)
+    return valCode;
 }
