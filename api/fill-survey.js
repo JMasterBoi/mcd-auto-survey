@@ -14,11 +14,16 @@ export default async function handler(req, res) {
         const valCode = await fillSurvey(code);
 
 
-        console.log("Survey completed successfully, valCode: '", valCode + "'");
-        
-        res.status(200).json({
+        if (valCode) {
+            console.log("Survey completed successfully, valCode: '", valCode + "'");
+        }
+        else {
+            console.log("Survey was not completed successfully, either faulty code or other error")
+        }
+        res.status(200).json({ 
             valCode: valCode
         });
+        
     } catch (error) {
         console.error("Survey failed:", error);
         

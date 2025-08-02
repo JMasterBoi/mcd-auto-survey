@@ -208,7 +208,7 @@ export async function fillSurvey(code) {
             }
             
     
-            if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
+            //! if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
             //! await new Promise(resolve => setTimeout(resolve, 500));
             
             console.log("currentQuestion:", currentQuestion)
@@ -275,7 +275,7 @@ export async function fillSurvey(code) {
                     break;
                 case "success":
                     console.log("success!")
-                    ret = await page.$eval('.ValCode', el => el.innerText.split(" ")[2]);
+                    ret = await page.$eval('.ValCode', el => el.innerText.split(" ")[2].trim());
                     console.log("ret: ", ret)
                     exit = true;
                     break;
