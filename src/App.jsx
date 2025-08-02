@@ -154,12 +154,12 @@ function App() {
     console.log("end run task")
 
     console.log("result", result)
-    console.log("valCode", result.data.valCode)
+    console.log("valCode", result?.data?.valCode)
   
     let finishedSurvey = queue.filter((task) => task.id === currentTaskId)[0];
-    finishedSurvey.status = "completed";
-    finishedSurvey.progress = 100;
-    finishedSurvey.valCode = result.data.valCode;
+    finishedSurvey.status = result?"completed":"error";
+    finishedSurvey.progress = result?100:0;
+    finishedSurvey.valCode = result ? result?.data?.valCode : "N/A";
 
     setFinishedTasks(prev => [...prev, finishedSurvey])
     setQueue(prev => prev.filter((task) => task.id != currentTaskId))
