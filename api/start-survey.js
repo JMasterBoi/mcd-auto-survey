@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   const { code } = req.body;
   if (!code) {res.status(400).json({"error": "code is missing"}); return;}
   console.log(code)
-  res.status(200);
+  res.status(200).json({"message": "starting the survey"});
 
 
   fillSurvey(code, (percentProgress) => {
