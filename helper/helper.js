@@ -5,9 +5,10 @@ import puppeteer from "puppeteer-core";
 
 // const code = "02378-13230-72825-18446-00126-4";
 
-export async function fillSurvey(code) {
+export async function fillSurvey(code, reportProgress, codesDb) {
+    reportProgress(0)
     const splitCode = code.split("-");
-    const valCode = await (async () => {
+    /*const valCode = */await (async () => {
         let ret;
         const survey = [
             {
@@ -189,7 +190,15 @@ export async function fillSurvey(code) {
             page.click("#NextButton")
         ]);
         
+        
         while (true) {
+            const progressElement = await page.$('#ProgressPercentage');
+            if (progressElement) {
+                const percentProgress = await page.$eval('#ProgressPercentage', el => el.innerText.replace("%", ""));
+                reportProgress(percentProgress)
+            }
+
+
             let exit = false;
             // check question
             let currentQuestion = null;
@@ -210,7 +219,11 @@ export async function fillSurvey(code) {
     
             //! if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
             //! await new Promise(resolve => setTimeout(resolve, 500));
-            if (!currentQuestion) return null
+            if (!currentQuestion) {
+                reportProgress("error");
+                await browser.close();
+                return;
+            }
 
             console.log("currentQuestion:", currentQuestion)
             switch (currentQuestion?.type) {
@@ -276,12 +289,29 @@ export async function fillSurvey(code) {
                     break;
                 case "success":
                     console.log("success!")
-                    ret = await page.$eval('.ValCode', el => el.innerText.split(" ")[2].trim());
+                    const valCode = await page.$eval('.ValCode', el => el.innerText.split(" ")[2].trim());
                     console.log("ret: ", ret)
+
+                    const codeDocument = {
+                        _id: code,
+                        user: 0,
+                        valCode: valCode
+                    }
+                    
+                    await codesDb.updateOne(
+                        {_id: code},
+                        {$set: codeDocument},
+                        {upsert: true}
+                    ).catch((err) => {
+                        console.log("Error with mongo: ", err)
+                    })
+
+                    reportProgress(100)
                     exit = true;
                     break;
                 default:
                     console.log("no good")
+                    reportProgress("error")
                     exit = true;
                     break;
             }
@@ -327,6 +357,5 @@ export async function fillSurvey(code) {
         return ret;
     })();
 
-    console.log("valCode:", valCode)
-    return valCode;
+    // console.log("valCode:", valCode)
 }

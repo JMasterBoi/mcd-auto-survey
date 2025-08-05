@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
   const [inputCode, setInputCode] = useState('')
@@ -131,8 +132,6 @@ function App() {
 
       await startTask(pendingTasks[0].id);
   
-      isProcessingRef.current = false;
-
       checkQueue()
     } else {
       console.log("there were 0 pending tasks")
@@ -147,59 +146,58 @@ function App() {
       )
     );
 
-    console.log("run task")
     const code = queue.filter(survey => survey.id === currentTaskId)[0]?.code
     
-    // const result = await axios.post("http://localhost:3000/api/fill-survey", {code: code})
-    const result = await axios.post("/api/fill-survey", {code: code})
+    //! start the survey
+    console.log("start the survey")
+    // axios.post("http://localhost:3000/api/start-survey", {code: code})
+    axios.post("/api/start-survey", {code: code})
 
-    console.log("end run task")
+    // poll for the progress
+    const interval = setInterval(async () => {
+      //! get code from 
+      console.log("getting progress");
+      const response = await axios.get(`/api/progress?code=${code}`) ?? 0;
+      // const response = await axios.get(`http://localhost:3000/api/progress?code=${code}`);
+      const progress = response?.data.progress ?? 0
+      console.log("progress: ", progress);
 
-    console.log("result", result)
-    console.log("valCode", result.data?.valCode)
-  
-    let finishedSurvey = queue.filter((task) => task.id === currentTaskId)[0];
-    finishedSurvey.status = result.data?.valCode?"completed":"error";
-    // finishedSurvey.progress = result.data?.valCode?100:0;
-    finishedSurvey.progress = 100;
-    finishedSurvey.valCode = result.data?.valCode ? result?.data?.valCode : "N/A";
+      if (progress == "100") {
+        console.log("progress has reached 100%")
+        
+        let finishedSurvey = queue.filter((task) => task.id === currentTaskId)[0];
+        finishedSurvey.status = "completed";
+        finishedSurvey.progress = 100;
+        // const valCodeResponse = await axios.get(`http://localhost:3000/api/val-code?code=${code}`, {code: code})
+        const valCodeResponse = await axios.get(`/api/val-code?code=${code}`, {code: code})
+        console.log("valCode:", valCodeResponse.data.valCode)
+        finishedSurvey.valCode = valCodeResponse.data.valCode??"N/A";
+        setFinishedTasks(prev => [...prev, finishedSurvey])
+        setQueue(prev => prev.filter((task) => task.id != currentTaskId))
+        clearInterval(interval)
+        isProcessingRef.current = false;
+      }
+      else if (progress == "error") {
+        console.log("progress has failed")
+        let finishedSurvey = queue.filter((task) => task.id === currentTaskId)[0];
+        finishedSurvey.status = "error";
+        finishedSurvey.progress = 100;
+        finishedSurvey.valCode = "N/A";
+        setFinishedTasks(prev => [...prev, finishedSurvey])
+        setQueue(prev => prev.filter((task) => task.id != currentTaskId))
+        clearInterval(interval)
+        isProcessingRef.current = false;
+      } else {
+        setQueue((prev) => {
+          return prev.map(i => 
+            i.id === currentTaskId ? { ...i, progress: progress } : i
+          )
+        })
+      }
 
-    setFinishedTasks(prev => [...prev, finishedSurvey])
-    setQueue(prev => prev.filter((task) => task.id != currentTaskId))
+    }, 1500)
   }
   //!
-  
-  const simulateProgress = (id) => {
-    setQueue(prev => prev.map(item => 
-      item.id === id ? { ...item, status: 'processing', progress: 10 } : item
-    ))
-
-    const progressInterval = setInterval(() => {
-      setQueue(prev => {
-        const item = prev.find(i => i.id === id)
-        if (!item || item.status !== 'processing') {
-          clearInterval(progressInterval)
-          return prev
-        }
-
-        const newProgress = Math.min(item.progress + Math.random() * 20, 95)
-        
-        if (newProgress >= 95) {
-          clearInterval(progressInterval)
-          // Simulate completion after a short delay
-          setTimeout(() => {
-            setQueue(prev => prev.map(i => 
-              i.id === id ? { ...i, status: 'completed', progress: 100 } : i
-            ))
-          }, 500)
-        }
-
-        return prev.map(i => 
-          i.id === id ? { ...i, progress: newProgress } : i
-        )
-      })
-    }, 1000 + Math.random() * 2000)
-  }
 
   const removeFromQueue = (id) => {
     setQueue(prev => prev.filter(item => item.id !== id))
@@ -339,6 +337,7 @@ function App() {
           <p>Tip: You can quickly add multiple codes by pressing Enter after each one</p>
         </footer>
       </div>
+      <SpeedInsights />
     </div>
   )
 }
