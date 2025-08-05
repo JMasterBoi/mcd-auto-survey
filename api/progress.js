@@ -3,10 +3,10 @@ import { Redis } from "@upstash/redis";
 const redis = Redis.fromEnv()
 
 export default async function handler(req, res) {
-  const { id } = req.query;
+  const { code } = req.query;
 
-  if (!id) return res.status(400).json({ error: "Missing ID" });
+  if (!code) return res.status(400).json({ error: "Missing Code" });
 
-  const progress = await redis.get(id);
+  const progress = await redis.get(code);
   res.status(200).json({ progress: progress || 0 });
 }
