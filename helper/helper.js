@@ -5,7 +5,7 @@ import puppeteer from "puppeteer-core";
 
 // const code = "02378-13230-72825-18446-00126-4";
 
-export async function fillSurvey(code, reportProgress, codesDb) {
+export async function fillSurvey(code, reportProgress, codesDb, logger) {
     reportProgress(0)
     const splitCode = code.split("-");
     /*const valCode = */await (async () => {
@@ -244,6 +244,7 @@ export async function fillSurvey(code, reportProgress, codesDb) {
             }
 
             console.log("currentQuestion:", currentQuestion)
+            logger(`currentQuestion: ${currentQuestion}`)
             switch (currentQuestion?.type) {
                 case "radio":
                     await page.waitForSelector('input[type="radio"]', { visible: true });
