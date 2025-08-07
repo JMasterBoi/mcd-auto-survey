@@ -123,6 +123,16 @@ export async function fillSurvey(code, reportProgress, codesDb) {
                 selection: [1]
             },
             {
+                question: "Did you purchase an item from the $1 $2 $3 Dollar menu?", 
+                type: "radio",
+                selection: [1]
+            },
+            // {
+            //     question: "1", 
+            //     type: "radio",
+            //     selection: [1]
+            // },
+            {
                 question: "Return to this", 
                 type: "radio",
                 selection: [0, 5]
@@ -171,11 +181,17 @@ export async function fillSurvey(code, reportProgress, codesDb) {
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
         });
-        // const browser = await puppeteer.launch({ args: ['--incognito']});
+        // const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
 
         // Create a new incognito browser context
         const page = await browser.newPage();
-    
+        // await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36')
+        await browser.deleteCookie(...(await browser.cookies()));
+        // await page.evaluate(() => {
+        // // localStorage.clear();
+        // sessionStorage.clear();
+        // });
+        
         await page.goto('https://www.mcdvoice.com/');
         // Wait until the input with ID CN1 is available
         await page.waitForSelector('#CN1');
@@ -190,7 +206,7 @@ export async function fillSurvey(code, reportProgress, codesDb) {
             page.click("#NextButton")
         ]);
         
-        
+        // await new Promise(resolve => setTimeout(resolve, 3000000));
         while (true) {
             const progressElement = await page.$('#ProgressPercentage');
             if (progressElement) {
@@ -216,10 +232,12 @@ export async function fillSurvey(code, reportProgress, codesDb) {
                 }
             }
             
-    
-            //! if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
-            //! await new Promise(resolve => setTimeout(resolve, 500));
+            //! helps with debugging
+            // if (!currentQuestion) {console.log("current question is null, check console"); await new Promise(resolve => setTimeout(resolve, 30000));}
+            // await new Promise(resolve => setTimeout(resolve, 500));
+            
             if (!currentQuestion) {
+                console.log("no current question")
                 reportProgress("error");
                 await browser.close();
                 return;
@@ -231,7 +249,7 @@ export async function fillSurvey(code, reportProgress, codesDb) {
                     await page.waitForSelector('input[type="radio"]', { visible: true });
                     console.log("currentQuestion.selection", currentQuestion.selection)
                     for (const selection of currentQuestion.selection) {
-                        await new Promise(resolve => setTimeout(resolve, 30));
+                        // await new Promise(resolve => setTimeout(resolve, 30));
                         console.log("selection", selection)
                         // if its the first select first
                         // if (selection == "first") await page.click('input[type="radio"]'); 
@@ -339,7 +357,7 @@ export async function fillSurvey(code, reportProgress, codesDb) {
                         // If navigation times out, just click the button
                         console.log("Navigation timeout, continuing...");
                         await page.click("#NextButton");
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        // await new Promise(resolve => setTimeout(resolve, 2000));
                     }
                 } else {
                     console.log("No Next button found, survey may be complete");
@@ -353,9 +371,15 @@ export async function fillSurvey(code, reportProgress, codesDb) {
             if (exit) break;
         }
         
+        await browser.deleteCookie(...(await browser.cookies()));
+        // await page.evaluate(() => {
+        // // localStorage.clear();
+        // sessionStorage.clear();
+        // });
+
         await browser.close();
         return ret;
     })();
-
+    
     // console.log("valCode:", valCode)
 }
