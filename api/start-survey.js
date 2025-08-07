@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   fillSurvey(code, (percentProgress) => {
     redis.set(code, percentProgress)
   }, codesDb, (log) => {
-    // console.log(log)
+    console.log(log)
   });
   res.status(200).json({message: "started survey"});
 }
