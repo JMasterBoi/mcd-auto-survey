@@ -23,12 +23,12 @@ export default async function handler(req, res) {
   const { code } = req.body;
   if (!code) {res.status(400).json({"error": "code is missing"}); return;}
   console.log(code)
-  res.status(200).json({message: "started survey"});
   
   
   fillSurvey(code, (percentProgress) => {
     redis.set(code, percentProgress)
   }, codesDb, (log) => {
-    console.log(log)
+    // console.log(log)
   });
+  res.status(200).json({message: "started survey"});
 }
