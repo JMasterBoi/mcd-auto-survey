@@ -176,7 +176,7 @@ export async function fillSurvey(code, reportProgress, codesDb, logger) {
     
 
         const browser = await puppeteer.launch({
-            args: chromium.args,
+            args: chromium.args + ["--incognito"],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
