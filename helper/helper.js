@@ -177,8 +177,9 @@ export async function fillSurvey(code, reportProgress, codesDb) {
             },
             {
                 question: "Please indicate your annual household income:", 
-                type: "select",
-                selection: "4"
+                type: "skip"
+                // type: "select",
+                // selection: "4"
             },
             //? last one!
             {
@@ -361,6 +362,9 @@ export async function fillSurvey(code, reportProgress, codesDb) {
 
                     reportProgress(100)
                     exit = true;
+                    break;
+                case "skip":
+                    console.log("skipping this one");
                     break;
                 default:
                     console.log("no good")
