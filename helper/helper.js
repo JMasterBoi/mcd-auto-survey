@@ -337,6 +337,7 @@ export async function fillSurvey(code, reportProgress, codesDb, logger) {
                     break;
                 case "select":
                     console.log("select")
+                    await page.waitForSelector('select', { visible: true });
                     await page.select('select', currentQuestion.selection);
                     break;
                 case "success":

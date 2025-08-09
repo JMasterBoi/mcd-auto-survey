@@ -29,8 +29,7 @@ try {
       // set progress in redis; Upstash handles simple string values
       redis.set(code, percentProgress).catch(console.error);
     },
-    codesDb,
-    (log) => console.log('[fillSurvey]', log)
+    codesDb
   );
   console.log('Worker finished.');
   process.exit(0);
