@@ -18,7 +18,7 @@ const launchOptions = {
   headless: chromium.headless,
 };
 
-export async function fillSurvey(code, reportProgress, codesDb, logger) {
+export async function fillSurvey(code, reportProgress, codesDb) {
     reportProgress(0)
     const splitCode = code.split("-");
     /*const valCode = */await (async () => {
@@ -277,7 +277,7 @@ export async function fillSurvey(code, reportProgress, codesDb, logger) {
             }
 
             console.log("currentQuestion:", currentQuestion)
-            logger(`currentQuestion: ${currentQuestion}`)
+
             switch (currentQuestion?.type) {
                 case "radio":
                     await page.waitForSelector('input[type="radio"]', { visible: true });
