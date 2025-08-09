@@ -13,10 +13,7 @@ export default async function handler(req, res) {
   if (!GITHUB_TOKEN) return res.status(500).json({ error: 'missing GITHUB_PAT on server' });
 
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
-  console.log("url: ", url)
-  console.log("GITHUB_OWNER: ", GITHUB_OWNER)
-  console.log("GITHUB_REPO: ", GITHUB_REPO)
-  console.log("GITHUB_TOKEN: ", GITHUB_TOKEN)
+
   try {
     await axios.post(url,
       { ref: 'main', inputs: { code } },
