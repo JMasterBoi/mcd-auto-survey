@@ -222,7 +222,7 @@ export async function fillSurvey(code, reportProgress, codesDb, logger) {
         // small random delay before starting interactions
         await sleep(randInt(300, 1200));
 
-        // -------AFTER THIS IS ACTUAL LOGIC-----
+        //# -------AFTER THIS IS ACTUAL LOGIC-----
 
         await page.goto('https://www.mcdvoice.com/');
 
