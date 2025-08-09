@@ -1,9 +1,22 @@
 // import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import randomUseragent from 'random-useragent';
 import chromium from '@sparticuz/chromium';
-import puppeteer from "puppeteer-core";
-
 
 // const code = "02378-13230-72825-18446-00126-4";
+
+puppeteer.use(StealthPlugin());
+
+function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function randChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+const launchOptions = {
+  args: chromium.args.concat(['--no-sandbox','--disable-setuid-sandbox', '--incognito']),
+  executablePath: await chromium.executablePath(),
+  headless: chromium.headless,
+};
 
 export async function fillSurvey(code, reportProgress, codesDb, logger) {
     reportProgress(0)
@@ -175,24 +188,44 @@ export async function fillSurvey(code, reportProgress, codesDb, logger) {
         ]
     
 
-        const browser = await puppeteer.launch({
-            args: chromium.args + ["--incognito"],
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-        });
+        const browser = await puppeteer.launch(launchOptions);
         // const browser = await puppeteer.launch({ args: ['--incognito'], headless: false});
 
         // Create a new incognito browser context
         const page = await browser.newPage();
-        // await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36')
+
+        // delete cookies
         await browser.deleteCookie(...(await browser.cookies()));
-        // await page.evaluate(() => {
-        // // localStorage.clear();
-        // sessionStorage.clear();
-        // });
+
+        // randomize UA & viewport
+        const ua = randomUseragent.getRandom();
+        await page.setUserAgent(ua || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36');
+
         
+        await page.setViewport({
+        width: randInt(1024, 1440),
+        height: randInt(720, 900),
+        deviceScaleFactor: 1
+        });
+
+        // emulate timezone (optional)
+        try { await page.emulateTimezone('America/Los_Angeles'); } catch(e){ console.log("time zone setting not allowed") }
+
+        // reduce fingerprinting surface (extra safety)
+        await page.evaluateOnNewDocument(() => {
+        // pretend navigator.webdriver = false
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+        // fake languages
+        Object.defineProperty(navigator, 'languages', { get: () => ['en-US','en'] });
+        });
+
+        // small random delay before starting interactions
+        await sleep(randInt(300, 1200));
+
+        // -------AFTER THIS IS ACTUAL LOGIC-----
+
         await page.goto('https://www.mcdvoice.com/');
+
         // Wait until the input with ID CN1 is available
         await page.waitForSelector('#CN1');
         

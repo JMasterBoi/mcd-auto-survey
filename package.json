@@ -14,12 +14,16 @@
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
+    "jimp": "^1.6.0",
     "mongodb": "^6.18.0",
+    "ocr-space-api-wrapper": "^2.4.1",
     "puppeteer": "^24.15.0",
-    "puppeteer-core": "^24.15.0",
+    "puppeteer-core": "^24.16.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "random-useragent": "^0.5.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "tesseract.js": "^6.0.1"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
